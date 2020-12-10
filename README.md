@@ -1,2 +1,2 @@
 # DKIM365POWERSHELL
-activate DKIM for 365 ans get cnames
+activate DKIM for 365 and get cnames
