@@ -1,4 +1,4 @@
-﻿function connexion{
+function ConnexionEXO{
 Write-host ******************************************
 Write-host * CONNEXION A LA CONSOLE EXCHANGE ONLINE *
 Write-host ******************************************`r `n
@@ -7,7 +7,14 @@ Install-Module -Name ExchangeOnlineManagement -MinimumVersion 2.0.3
 Import-Module ExchangeOnlineManagement
 Connect-ExchangeOnline
 
-function test-tenant {
+Connect-ExchangeOnline -Credential $UserCredential -ShowProgress $true
+}
+
+Function DeconnexionEXO { 
+Get-PSSession | Where-Object { $_.ConfigurationName -eq 'Microsoft.Exchange' } | Remove-PSSession
+}
+
+function Test-Tenant {
 Write-host *****************************************************
 Write-host * ETAT DE DKIM SUR LE DOMAINE ONMICROSOFT DU TENANT *
 Write-host *****************************************************`r `n
@@ -37,13 +44,13 @@ Get-DkimSigningConfig | Where-object {$_.Domain -Like "*onmicrosoft.com" } |ForE
             write-host activation de DKIM sur le domaine $_.Domain -ForegroundColor Yellow
             Set-DkimSigningConfig -identity $_.Domain -Enabled $True
             $New = '1'
-            test-tenant
+            Test-Tenant
             }
         }
                                                                                             }
 }
 
-Function test-domains { 
+Function Test-Domain { 
 Write-host *******************************************
 Write-host * ETAT DE DKIM SUR LES DOMAINES DU TENANT *
 Write-host *******************************************`r `n
@@ -52,6 +59,9 @@ Get-DkimSigningConfig | Where-object {$_.Domain -NotLike "*onmicrosoft.com" } |F
     if ($_.Enabled -eq $true)
     {
         Write-host $_.Domain :DKIM est ACTIF -ForegroundColor Green
+          Write-Host VOICI LES ENREGISTREMENTS CNAME A RENSEIGNER SUR LA ZONE DNS DU DOMAINE: $_.Domain -ForegroundColor Green
+        Write-Host Hôte:selector1._domainkey avec la valeur $_.Selector1CNAME -ForegroundColor Green
+        Write-Host Hôte: selector2._domainkey  avec la valeur: $_.Selector2CNAME -ForegroundColor Green
     }
 else 
     {
@@ -70,6 +80,7 @@ else
             if ($New -eq '1')
             {
             New-DkimSigningConfig -DomainName $_.domain -Enabled $True
+          
             }
             else
             {
@@ -78,7 +89,7 @@ else
 
         Get-DkimSigningConfig -Identity $_.Domain | select Domain, Selector1CNAME, Selector2CNAME |ForEach-object {
         Write-Host VOICI LES ENREGISTREMENTS CNAME A RENSEIGNER SUR LA ZONE DNS DU DOMAINE: $_.Domain -ForegroundColor Green
-        Write-Host Hôte: selector1._domainkey  avec la valeur: $_.Selector1CNAME -ForegroundColor Green
+        Write-Host Hôte:selector1._domainkey avec la valeur $_.Selector1CNAME -ForegroundColor Green
         Write-Host Hôte: selector2._domainkey  avec la valeur: $_.Selector2CNAME -ForegroundColor Green
                                                                                                                    }
       }
@@ -86,7 +97,12 @@ else
     }
                                                                                                 }
 # connexion
-test-tenant
-test-domains
+ConnexionEXO
+Test-Tenant
 pause
+Test-Domain
+
+pause
+
+
  
