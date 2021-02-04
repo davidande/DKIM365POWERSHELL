@@ -3,14 +3,9 @@ Write-host ******************************************
 Write-host * CONNEXION A LA CONSOLE EXCHANGE ONLINE *
 Write-host ******************************************`r `n
 
-Install-Module -Name ExchangeOnlineManagement -RequiredVersion 2.0.3
+Install-Module -Name ExchangeOnlineManagement -MinimumVersion 2.0.3
 Import-Module ExchangeOnlineManagement
-$UserCredential = Get-Credential
-
-Connect-ExchangeOnline -Credential $UserCredential -ShowProgress $true
-}
-
-# Get-PSSession | Where-Object { $_.ConfigurationName -eq 'Microsoft.Exchange' } | Remove-PSSession
+Connect-ExchangeOnline
 
 function test-tenant {
 Write-host *****************************************************
